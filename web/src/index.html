@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Bibliotecas</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Sistema de Gestão de Bibliotecas</h1>
+        <nav>
+            <button class="tab-btn active" data-tab="books">Livros</button>
+            <button class="tab-btn" data-tab="readers">Leitores</button>
+            <button class="tab-btn" data-tab="loans">Empréstimos</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Aba para gestão de livros -->
+        <section id="books" class="tab-content active">
+            <div class="books-header">
+                <h2>Gerenciamento de Livros</h2>
+                <button id="new-book-btn" class="btn-primary">Adicionar Livro</button>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="search-books" placeholder="Buscar livros...">
+                <button id="search-btn">Buscar</button>
+            </div>
+            <table id="books-table">
+                <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Autor</th>
+                    <th>Categoria</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody id="books-list">
+                <!-- A lista de livros criados será exibida aqui -->
+                </tbody>
+            </table>
+
+            <!-- Formulario Livros -->
+            <div id="book-form-container" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 id="book-form-title">Adicionar Livro</h2>
+                    <form id="book-form">
+                        <input type="hidden" id="book-id">
+                        <div class="form-group">
+                            <label for="title">Titulo:</label>
+                            <input type="text" id="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="author">Autor:</label>
+                            <input type="text" id="author" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Categoria:</label>
+                            <select id="category" required>
+                                <option value="">Selecionar categoria...</option>
+                                <option value="Fiction">Fiction</option>
+                                <option value="Non-Fiction">Non-Fiction</option>
+                                <option value="Science Fiction">Science Fiction</option>
+                                <option value="Fantasy">Fantasy</option>
+                                <option value="Mystery">Mystery</option>
+                                <option value="Biography">Biography</option>
+                                <option value="History">History</option>
+                                <option value="Children">Children's</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">Salvar Livro</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Aba para gestão de Leitores -->
+        <section id="readers" class="tab-content">
+            <div class="readers-header">
+                <h2>Gerenciamento de Leitores</h2>
+                <button id="new-reader-btn" class="btn-primary">Adicionar Leitor</button>
+            </div>
+            <table id="readers-table">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Endereço</th>
+                    <th>Emprestimos Atuais</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody id="readers-list">
+                <!-- A lista de leitores criados será exibida aqui -->
+                </tbody>
+            </table>
+
+            <!-- Formulario Leitores (hidden by default) -->
+            <div id="reader-form-container" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 id="reader-form-title">Adicionar Leitor</h2>
+                    <form id="reader-form">
+                        <input type="hidden" id="reader-id">
+                        <div class="form-group">
+                            <label for="reader-name">Nome:</label>
+                            <input type="text" id="reader-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reader-email">Email:</label>
+                            <input type="email" id="reader-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reader-phone">Telefone:</label>
+                            <input type="tel" id="reader-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reader-address">Endereço:</label>
+                            <textarea id="reader-address" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Salvar Leitor</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Aba para a gestão de emprestimos -->
+        <section id="loans" class="tab-content">
+            <div class="loans-header">
+                <h2>Gerenciamento de Empréstimos</h2>
+                <button id="new-loan-btn" class="btn-primary">Novo Emprestimo</button>
+            </div>
+            <table id="loans-table">
+                <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Leitor</th>
+                    <th>Data Empretimo</th>
+                    <th>Vencimento Emprestimo</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody id="loans-list">
+                <!-- A lista de emprestimos criados será exibida aqui -->
+                </tbody>
+            </table>
+
+            <!-- Formulario Empréstimos (hidden by default) -->
+            <div id="loan-form-container" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Novo Empréstimo</h2>
+                    <form id="loan-form">
+                        <div class="form-group">
+                            <label for="book-select">Livro:</label>
+                            <select id="book-select" required>
+                                <!-- A lista de livros criados será exibida aqui -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reader-select">Leitor:</label>
+                            <select id="reader-select" required>
+                                <!-- A lista de leitores criados será exibida aqui -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="due-date">Data de Vencimento:</label>
+                            <input type="date" id="due-date" required>
+                        </div>
+                        <button type="submit" class="btn-primary">Adicionar Emprestimo</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
