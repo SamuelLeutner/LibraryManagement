@@ -35,19 +35,19 @@ public class BookService {
                 }
 
                 Book book = new Book(
-                    Integer.parseInt(line[0]),
-                    line[1],
-                    line[2],
-                    Integer.parseInt(line[3]),
-                    line[4],
-                    line[5],
-                    BookStatusEnum.valueOf(line[6])
+                        Integer.parseInt(line[0]),
+                        line[1],
+                        line[2],
+                        Integer.parseInt(line[3]),
+                        line[4],
+                        line[5],
+                        BookStatusEnum.valueOf(line[6])
                 );
 
                 books.add(book);
             }
-        } catch (IOException | CsvValidationException e) {
-            throw new IOException(e);
+        } catch (CsvValidationException e) {
+            throw new RuntimeException(e);
         }
 
         return books;
@@ -101,41 +101,39 @@ public class BookService {
             throw new RuntimeException("Livro não encontrado para o ID fornecido.");
         }
 
-        try (CSVWriter writer = new CSVWriter(new FileWriter(FILE_PATH, false))) {
-            writer.writeNext(new String[]{"ID", "Title", "Author", "ISBN", "Category", "Location", "Status"});
-
-            for (Book book : books) {
-                String[] bookData = new String[] {
-                        String.valueOf(book.getId()),
-                        book.getTitle(),
-                        book.getAuthor(),
-                        String.valueOf(book.getIsbn()),
-                        book.getCategory(),
-                        book.getLocation(),
-                        book.getStatus().name()
-                };
-                writer.writeNext(bookData);
-            }
-        } catch (IOException e) {
-            throw new IOException("Erro ao tentar reescrever o arquivo CSV.", e);
-        }
-        return null;
+        saveBooksToCSV(books);
+        return ResponseEntity.ok(updatedBook);
     }
 
     public ResponseEntity<Book> delete(@PathVariable int id) throws IOException {
         List<Book> books = index();
-        List<Book> updateBook = new ArrayList<>();
+        List<Book> updatedBooks = new ArrayList<>();
 
         for (Book book : books) {
             if (book.getId() != id) {
-                updateBook.add(book);
+                updatedBooks.add(book);
             }
         }
 
+        saveBooksToCSV(updatedBooks);
+        return ResponseEntity.ok().build();
+    }
+
+    public void updateBookStatus(int bookId, BookStatusEnum status) throws IOException {
+        List<Book> books = index();
+        for (Book book : books) {
+            if (book.getId() == bookId) {
+                book.setStatus(status);
+                break;
+            }
+        }
+        saveBooksToCSV(books);
+    }
+
+    private void saveBooksToCSV(List<Book> books) throws IOException {
         try (CSVWriter writer = new CSVWriter(new FileWriter(FILE_PATH, false))) {
             writer.writeNext(new String[]{"ID", "Title", "Author", "ISBN", "Category", "Location", "Status"});
-
-            for (Book book : updateBook) {
+            for (Book book : books) {
                 String[] record = {
                         String.valueOf(book.getId()),
                         book.getTitle(),
@@ -147,8 +145,8 @@ public class BookService {
                 };
                 writer.writeNext(record);
             }
+        } catch (IOException e) {
+            throw new IOException("Erro ao tentar salvar os livros no arquivo CSV.", e);
         }
-
-        return null;
     }
 }
