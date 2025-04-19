@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/loan")
 public class LoanController {
 
