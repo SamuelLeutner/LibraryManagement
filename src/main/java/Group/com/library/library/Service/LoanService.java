@@ -5,6 +5,7 @@ import Group.com.library.library.Enum.LoanStatusEnum;
 import Group.com.library.library.Exception.LivroIndisponivelException;
 import Group.com.library.library.Model.Book;
 import Group.com.library.library.Model.Loan;
+import Group.com.library.library.Model.User;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
@@ -21,16 +22,19 @@ import java.util.List;
 public class LoanService {
 
     private final BookService bookService;
+    private final UserService userService;
     private final String LOAN_FILE_PATH = "src/database/loans.csv";
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-    public LoanService(BookService bookService) {
+    public LoanService(BookService bookService, UserService userService) {
         this.bookService = bookService;
+        this.userService = userService;
     }
 
     public List<Loan> index() throws IOException {
         List<Loan> loans = new ArrayList<>();
         List<Book> books = bookService.index();
+        List<User> users = userService.index();
 
         try (CSVReader reader = new CSVReader(new FileReader(LOAN_FILE_PATH))) {
             String[] line;
@@ -47,10 +51,14 @@ public class LoanService {
                 int bookId = Integer.parseInt(line[4]);
                 Book book = books.stream().filter(b -> b.getId() == bookId).findFirst().orElse(null);
 
+                int userId = Integer.parseInt(line[5]);
+                User user = users.stream().filter(b -> b.getId() == userId).findFirst().orElse(null);
+
                 if (book != null) {
                     Loan loan = new Loan(
                             Integer.parseInt(line[0]),
                             book.getId(),
+                            user.getId(),
                             sdf.parse(line[1]),
                             sdf.parse(line[2]),
                             LoanStatusEnum.valueOf(line[3])
@@ -85,7 +93,7 @@ public class LoanService {
 
         try (CSVWriter writer = new CSVWriter(new FileWriter(LOAN_FILE_PATH, true))) {
             if (!fileExists) {
-                writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookID"});
+                writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookID", "ReaderID"});
             }
 
             writer.writeNext(new String[]{
@@ -93,7 +101,8 @@ public class LoanService {
                     sdf.format(loan.getDateLoan()),
                     sdf.format(loan.getReturnDate()),
                     loan.getStatus().name(),
-                    String.valueOf(loan.getBookId())
+                    String.valueOf(loan.getBookId()),
+                    String.valueOf(loan.getReaderId())
             });
         }
 
@@ -117,6 +126,7 @@ public class LoanService {
                 loan.setReturnDate(updatedLoan.getReturnDate());
                 loan.setStatus(updatedLoan.getStatus());
                 loan.setBookId(updatedLoan.getBookId());
+                loan.setReaderId(updatedLoan.getReaderId());
                 updated = true;
                 break;
             }
@@ -125,14 +135,15 @@ public class LoanService {
         if (!updated) throw new RuntimeException("Erro ao atualizar empréstimo.");
 
         try (CSVWriter writer = new CSVWriter(new FileWriter(LOAN_FILE_PATH, false))) {
-            writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookID"});
+            writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookID", "ReaderID"});
             for (Loan loan : loans) {
                 writer.writeNext(new String[]{
                         String.valueOf(loan.getId()),
                         sdf.format(loan.getDateLoan()),
                         sdf.format(loan.getReturnDate()),
                         loan.getStatus().name(),
-                        String.valueOf(loan.getBookId())
+                        String.valueOf(loan.getBookId()),
+                        String.valueOf(loan.getReaderId())
                 });
             }
         }
@@ -151,14 +162,15 @@ public class LoanService {
         loans.removeIf(l -> l.getId() == id);
 
         try (CSVWriter writer = new CSVWriter(new FileWriter(LOAN_FILE_PATH, false))) {
-            writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookID"});
+            writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookID", "ReaderID"});
             for (Loan loan : loans) {
                 writer.writeNext(new String[]{
                         String.valueOf(loan.getId()),
                         sdf.format(loan.getDateLoan()),
                         sdf.format(loan.getReturnDate()),
                         loan.getStatus().name(),
-                        String.valueOf(loan.getBookId())
+                        String.valueOf(loan.getBookId()),
+                        String.valueOf(loan.getReaderId())
                 });
             }
         }
