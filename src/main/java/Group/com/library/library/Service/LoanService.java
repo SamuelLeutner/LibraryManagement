@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class LoanService {
@@ -46,22 +48,33 @@ public class LoanService {
                     continue;
                 }
 
-                if (line.length < 5 || line[0].isEmpty()) continue;
+                if (line.length < 6 || line[0].isEmpty()) continue;
 
-                int bookId = Integer.parseInt(line[4]);
-                Book book = books.stream().filter(b -> b.getId() == bookId).findFirst().orElse(null);
+                int loanId = Integer.parseInt(line[0]);
+                Date loanDate = sdf.parse(line[1]);
+                Date returnDate = sdf.parse(line[2]);
+                LoanStatusEnum status = LoanStatusEnum.valueOf(line[3]);
 
-                int userId = Integer.parseInt(line[5]);
-                User user = users.stream().filter(b -> b.getId() == userId).findFirst().orElse(null);
+                String bookTitle = line[4];
+                Book book = books.stream()
+                        .filter(b -> b.getTitle().equalsIgnoreCase(bookTitle))
+                        .findFirst()
+                        .orElse(null);
 
-                if (book != null) {
+                String userName = line[5];
+                User user = users.stream()
+                        .filter(u -> u.getName().equalsIgnoreCase(userName))
+                        .findFirst()
+                        .orElse(null);
+
+                if (book != null && user != null) {
                     Loan loan = new Loan(
-                            Integer.parseInt(line[0]),
-                            book.getId(),
-                            user.getId(),
-                            sdf.parse(line[1]),
-                            sdf.parse(line[2]),
-                            LoanStatusEnum.valueOf(line[3])
+                            loanId,
+                            book.getTitle(),
+                            user.getName(),
+                            loanDate,
+                            returnDate,
+                            status
                     );
                     loans.add(loan);
                 }
@@ -82,18 +95,31 @@ public class LoanService {
         }
 
         List<Book> books = bookService.index();
-        Book book = books.stream().filter(b -> b.getId() == loan.getBookId()).findFirst().orElse(null);
+        List<User> users = userService.index();
+
+        Book book = books.stream()
+                .filter(b -> Objects.equals(b.getTitle(), loan.getBookTitle()))
+                .findFirst()
+                .orElse(null);
 
         if (book == null) throw new RuntimeException("Livro não encontrado.");
+
         if (book.getStatus() == BookStatusEnum.EMPRESTADO || book.getStatus() == BookStatusEnum.RESERVADO) {
             throw new LivroIndisponivelException("Livro indisponível.");
         }
 
-        bookService.updateBookStatus(book.getId(), BookStatusEnum.EMPRESTADO);
+        User user = users.stream()
+                .filter(u -> Objects.equals(u.getName(), loan.getReaderName()))
+                .findFirst()
+                .orElse(null);
+
+        if (user == null) throw new RuntimeException("Usuário não encontrado.");
+
+        bookService.updateBookStatus(book.getTitle(), BookStatusEnum.EMPRESTADO);
 
         try (CSVWriter writer = new CSVWriter(new FileWriter(LOAN_FILE_PATH, true))) {
             if (!fileExists) {
-                writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookID", "ReaderID"});
+                writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookTitle", "ReaderName"});
             }
 
             writer.writeNext(new String[]{
@@ -101,8 +127,8 @@ public class LoanService {
                     sdf.format(loan.getDateLoan()),
                     sdf.format(loan.getReturnDate()),
                     loan.getStatus().name(),
-                    String.valueOf(loan.getBookId()),
-                    String.valueOf(loan.getReaderId())
+                    String.valueOf(loan.getBookTitle()),
+                    String.valueOf(loan.getReaderName())
             });
         }
 
@@ -116,17 +142,17 @@ public class LoanService {
         Loan existingLoan = loans.stream().filter(l -> l.getId() == id).findFirst().orElse(null);
         if (existingLoan == null) throw new RuntimeException("Empréstimo não encontrado.");
 
-        bookService.updateBookStatus(existingLoan.getBookId(), BookStatusEnum.LIVRE);
+        bookService.updateBookStatus(existingLoan.getBookTitle(), BookStatusEnum.LIVRE);
 
-        bookService.updateBookStatus(updatedLoan.getBookId(), BookStatusEnum.EMPRESTADO);
+        bookService.updateBookStatus(updatedLoan.getBookTitle(), BookStatusEnum.EMPRESTADO);
 
         for (Loan loan : loans) {
             if (loan.getId() == id) {
                 loan.setDateLoan(updatedLoan.getDateLoan());
                 loan.setReturnDate(updatedLoan.getReturnDate());
                 loan.setStatus(updatedLoan.getStatus());
-                loan.setBookId(updatedLoan.getBookId());
-                loan.setReaderId(updatedLoan.getReaderId());
+                loan.setBookTitle(updatedLoan.getBookTitle());
+                loan.setReaderName(updatedLoan.getReaderName());
                 updated = true;
                 break;
             }
@@ -135,15 +161,15 @@ public class LoanService {
         if (!updated) throw new RuntimeException("Erro ao atualizar empréstimo.");
 
         try (CSVWriter writer = new CSVWriter(new FileWriter(LOAN_FILE_PATH, false))) {
-            writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookID", "ReaderID"});
+            writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookTitle", "ReaderName"});
             for (Loan loan : loans) {
                 writer.writeNext(new String[]{
                         String.valueOf(loan.getId()),
                         sdf.format(loan.getDateLoan()),
                         sdf.format(loan.getReturnDate()),
                         loan.getStatus().name(),
-                        String.valueOf(loan.getBookId()),
-                        String.valueOf(loan.getReaderId())
+                        String.valueOf(loan.getBookTitle()),
+                        String.valueOf(loan.getReaderName())
                 });
             }
         }
@@ -157,20 +183,20 @@ public class LoanService {
 
         if (loanToDelete == null) throw new RuntimeException("Empréstimo não encontrado.");
 
-        bookService.updateBookStatus(loanToDelete.getBookId(), BookStatusEnum.LIVRE);
+        bookService.updateBookStatus(loanToDelete.getBookTitle(), BookStatusEnum.LIVRE);
 
         loans.removeIf(l -> l.getId() == id);
 
         try (CSVWriter writer = new CSVWriter(new FileWriter(LOAN_FILE_PATH, false))) {
-            writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookID", "ReaderID"});
+            writer.writeNext(new String[]{"ID", "DateLoan", "ReturnDate", "Status", "BookTitle", "ReaderName"});
             for (Loan loan : loans) {
                 writer.writeNext(new String[]{
                         String.valueOf(loan.getId()),
                         sdf.format(loan.getDateLoan()),
                         sdf.format(loan.getReturnDate()),
                         loan.getStatus().name(),
-                        String.valueOf(loan.getBookId()),
-                        String.valueOf(loan.getReaderId())
+                        String.valueOf(loan.getBookTitle()),
+                        String.valueOf(loan.getReaderName())
                 });
             }
         }

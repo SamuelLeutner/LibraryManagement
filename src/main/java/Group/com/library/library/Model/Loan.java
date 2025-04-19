@@ -6,38 +6,38 @@ import Group.com.library.library.Enum.LoanStatusEnum;
 import java.util.Date;
 
 public class Loan {
-    private int id;
-    private int bookId;
-    private int readerId;
+    private final int id;
+    private String bookTitle;
+    private String readerName;
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date dateLoan;
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date returnDate;
     private LoanStatusEnum status;
 
-    public Loan(int id, int book, int userId, Date dateLoan, Date returnDate, LoanStatusEnum status) {
+    public Loan(int id, String bookTitle, String userName, Date dateLoan, Date returnDate, LoanStatusEnum status) {
         this.id = id;
-        this.bookId = book;
-        this.readerId = userId;
+        this.bookTitle = bookTitle;
+        this.readerName = userName;
         this.dateLoan = dateLoan;
         this.returnDate = returnDate;
         this.status = status;
     }
 
-    public int getReaderId() {
-        return readerId;
+    public String getReaderName() {
+        return readerName;
     }
 
-    public void setReaderId(int readerId) {
-        this.readerId = readerId;
+    public void setReaderName(String readerName) {
+        this.readerName = readerName;
     }
 
-    public int getBookId() {
-        return bookId;
+    public String getBookTitle() {
+        return bookTitle;
     }
 
-    public void setBookId(int bookId) {
-        this.bookId = bookId;
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
     }
 
     public int getId() {

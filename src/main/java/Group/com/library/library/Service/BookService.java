@@ -12,6 +12,7 @@ import Group.com.library.library.Enum.BookStatusEnum;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BookService {
@@ -119,10 +120,10 @@ public class BookService {
         return ResponseEntity.ok().build();
     }
 
-    public void updateBookStatus(int bookId, BookStatusEnum status) throws IOException {
+    public void updateBookStatus(String bookTitle, BookStatusEnum status) throws IOException {
         List<Book> books = index();
         for (Book book : books) {
-            if (book.getId() == bookId) {
+            if (Objects.equals(book.getTitle(), bookTitle)) {
                 book.setStatus(status);
                 break;
             }
