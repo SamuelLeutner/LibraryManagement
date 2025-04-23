@@ -90,6 +90,11 @@ public class LoanService {
         File file = new File(LOAN_FILE_PATH);
         boolean fileExists = file.exists();
 
+        if (!fileExists) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+
         if (loan.getDateLoan() == null || loan.getReturnDate() == null) {
             throw new IllegalArgumentException("As datas não podem ser nulas.");
         }
