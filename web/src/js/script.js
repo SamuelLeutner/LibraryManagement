@@ -225,7 +225,7 @@ function fetchBooks() {
                         <td id="book-status">${book.status}</td>                
                         <td>
                             <button id="btn-edit-book" onclick="editBook(${book.id})">Editar</button>
-                            <button onclick="deleteBook(${book.id})">Deletar</button>
+                            <button id="btn-delete-book" onclick="deleteBook(${book.id})">Deletar</button>
                         </td>                
                     </tr>      
                 `
