@@ -52,6 +52,11 @@ public class UserService {
         File file = new File(USER_FILE_PATH);
         boolean fileExists = file.exists();
 
+        if (!fileExists) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+        
         try (CSVWriter writer = new CSVWriter(new FileWriter(USER_FILE_PATH, true))) {
             if (!fileExists) {
                 writer.writeNext(new String[]{"ID", "Name", "Email", "Password", "Phone", "Role"});

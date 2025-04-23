@@ -58,6 +58,11 @@ public class BookService {
         File file = new File(FILE_PATH);
         boolean fileExists = file.exists();
 
+        if (!fileExists) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+
         try (CSVWriter writer = new CSVWriter(new FileWriter(FILE_PATH, true))) {
             if (!fileExists) {
                 String[] header = {"ID", "Title", "Author", "ISBN", "Category", "Location", "Status"};
