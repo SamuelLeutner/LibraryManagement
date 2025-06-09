@@ -185,7 +185,7 @@ table tr:hover {
     cursor: pointer;
 }
 
-#btn-edit-book{
+#btn-edit{
         padding: 6px 12px;
         background-color: #2196f3;
         color: white;
@@ -194,7 +194,7 @@ table tr:hover {
         cursor: pointer;
 }
 
-#btn-delete-book{
+#btn-delete{
         padding: 6px 12px;
         background-color: #f44336;
         color: white;

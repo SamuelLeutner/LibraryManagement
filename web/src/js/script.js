@@ -94,7 +94,7 @@ function fetchLoan() {
                         <td>${loan.returnDate}</td>
                         <td>${loan.status}</td>
                         <td>
-                            <button onclick="deleteLoan(${loan.id})">Devolver</button>
+                             <button id="btn-edit" onclick="deleteLoan(${loan.id})">Devolver</button>
                         </td>
                     </tr>
                 `
@@ -224,8 +224,8 @@ function fetchBooks() {
                         <td>${book.category}</td>                
                         <td id="book-status">${book.status}</td>                
                         <td>
-                            <button id="btn-edit-book" onclick="editBook(${book.id})">Editar</button>
-                            <button id="btn-delete-book" onclick="deleteBook(${book.id})">Deletar</button>
+                            <button id="btn-edit" onclick="editBook(${book.id})">Editar</button>
+                            <button id="btn-delete" onclick="deleteBook(${book.id})">Deletar</button>
                         </td>                
                     </tr>      
                 `
@@ -357,8 +357,8 @@ function fetchReaders() {
                         <td>${user.email}</td>
                         <td>${user.phone}</td>
                         <td>
-                            <button onclick="editUser(${user.id})">Editar</button>
-                            <button onclick="deleteUser(${user.id})">Deletar</button>
+                            <button id="btn-edit" onclick="editUser(${user.id})">Editar</button>
+                            <button id="btn-delete" onclick="deleteUser(${user.id})">Deletar</button>
                         </td>
                     </tr>
                 `;
